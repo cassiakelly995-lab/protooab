@@ -7,58 +7,21 @@
 <meta name="description" content="Aplicativo da 247ª Subseção da OAB SP: agendamento de salas, eventos e contatos úteis para a advocacia local.">
 <meta name="theme-color" content="#0a222c">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./favicon-64.png" sizes="64x64" type="image/png">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icons/favicon-64.png">
+<link rel="apple-touch-icon" href="./icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="OAB Santana">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="./styles.css">
-<style>
-  /* Faixa de instalação — estilos próprios, para não depender do styles.css */
-  #faixa-instalar{
-    position:fixed; left:0; right:0; top:0; z-index:9999;
-    display:none; align-items:center; gap:.75rem;
-    padding:.7rem 1rem calc(.7rem + env(safe-area-inset-top,0px));
-    background:#0a222c; color:#fff;
-    font-family:"Public Sans",system-ui,-apple-system,sans-serif; font-size:.9rem; line-height:1.35;
-    box-shadow:0 2px 12px rgba(0,0,0,.28);
-  }
-  #faixa-instalar.visivel{display:flex}
-  #faixa-instalar img{height:26px; flex:0 0 auto}
-  #faixa-instalar p{margin:0; flex:1 1 auto}
-  #faixa-instalar button{
-    flex:0 0 auto; border:0; border-radius:.5rem; cursor:pointer;
-    font:inherit; font-weight:600; padding:.45rem .85rem;
-    background:#fff; color:#0a222c;
-  }
-  #faixa-instalar .fechar{
-    background:transparent; color:#fff; opacity:.7;
-    padding:.45rem .35rem; font-size:1.15rem; line-height:1;
-  }
-  @media (max-width:420px){
-    #faixa-instalar{font-size:.82rem; gap:.5rem; padding-left:.75rem; padding-right:.75rem}
-    #faixa-instalar img{height:22px}
-  }
-</style>
 </head>
 <body>
-
-<!-- ====================== INSTALAR NO CELULAR ====================== -->
-<div id="faixa-instalar" role="region" aria-label="Instalar aplicativo">
-  <img src="./icon-192.png" alt="">
-  <p id="faixa-texto">Instale o app da Subseção na tela inicial do seu celular.</p>
-  <button type="button" id="btn-instalar">Instalar</button>
-  <button type="button" class="fechar" id="btn-fechar-instalar" aria-label="Agora não">&times;</button>
-</div>
 
 <!-- ====================== IDENTIFICAÇÃO ====================== -->
 <section id="tela-cadastro" class="container" hidden>
   <div style="padding:2.5rem 0 1.5rem">
-    <img src="./logo-horizontal.png" alt="OAB SP — Subseção Santana de Parnaíba" style="height:44px">
+    <img src="./icons/logo-horizontal.png" alt="OAB SP — Subseção Santana de Parnaíba" style="height:44px">
   </div>
   <h1>Bem-vindo à agenda da Subseção</h1>
   <p class="lead">Informe seus dados uma única vez. Eles ficam guardados neste aparelho e preenchem suas próximas reservas automaticamente.</p>
@@ -96,7 +59,7 @@
 
   <header class="topo">
     <div class="container">
-      <img src="./logo-horizontal.png" alt="OAB SP — Subseção Santana de Parnaíba">
+      <img src="./icons/logo-horizontal.png" alt="OAB SP — Subseção Santana de Parnaíba">
       <div class="quem">
         <strong id="quem-nome"></strong>
         <span id="quem-oab"></span><br>
@@ -205,67 +168,5 @@
 <script src="./conteudo.js"></script>
 <script src="./dados.js"></script>
 <script src="./app.js"></script>
-
-<!-- ====================== INSTALAÇÃO (PWA) ====================== -->
-<script>
-(function () {
-  // 1. Registra o service worker — sem ele o celular não oferece a instalação.
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-      navigator.serviceWorker.register('./sw.js', { scope: './' })
-        .catch(function (e) { console.warn('Service worker não registrado:', e); });
-    });
-  }
-
-  var faixa    = document.getElementById('faixa-instalar');
-  var texto    = document.getElementById('faixa-texto');
-  var btnInst  = document.getElementById('btn-instalar');
-  var btnFecha = document.getElementById('btn-fechar-instalar');
-  var evento   = null;
-
-  var jaInstalado =
-    window.matchMedia('(display-mode: standalone)').matches ||
-    window.navigator.standalone === true;
-
-  var dispensou = false;
-  try { dispensou = localStorage.getItem('oab-instalar-dispensado') === '1'; } catch (e) {}
-
-  function mostrar() { faixa.classList.add('visivel'); }
-  function esconder() { faixa.classList.remove('visivel'); }
-
-  btnFecha.addEventListener('click', function () {
-    esconder();
-    try { localStorage.setItem('oab-instalar-dispensado', '1'); } catch (e) {}
-  });
-
-  // 2. Android / Chrome / Edge: instalação com um toque.
-  window.addEventListener('beforeinstallprompt', function (e) {
-    e.preventDefault();
-    evento = e;
-    if (!jaInstalado && !dispensou) mostrar();
-  });
-
-  btnInst.addEventListener('click', function () {
-    if (!evento) return;
-    evento.prompt();
-    evento.userChoice.then(function () { evento = null; esconder(); });
-  });
-
-  window.addEventListener('appinstalled', function () {
-    esconder();
-    try { localStorage.setItem('oab-instalar-dispensado', '1'); } catch (e) {}
-  });
-
-  // 3. iPhone e iPad: o Safari não tem botão, então explicamos o caminho.
-  var ehIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-  if (ehIOS && !jaInstalado && !dispensou) {
-    texto.textContent = 'Para instalar: toque em Compartilhar e depois em "Adicionar à Tela de Início".';
-    btnInst.hidden = true;
-    mostrar();
-  }
-})();
-</script>
 </body>
 </html>

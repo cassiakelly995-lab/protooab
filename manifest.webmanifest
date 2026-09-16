@@ -1,41 +1,17 @@
 {
-  "name": "OAB Santana de Parnaíba",
+  "name": "OAB SP — 247ª Subseção Santana de Parnaíba",
   "short_name": "OAB Santana",
-  "description": "Aplicativo da 247ª Subseção da OAB SP: agendamento de salas, eventos e contatos úteis para a advocacia local.",
+  "description": "Agendamento de salas, eventos e contatos úteis para a advocacia da 247ª Subseção.",
   "lang": "pt-BR",
-  "dir": "ltr",
   "start_url": "./index.html",
   "scope": "./",
-  "id": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0a222c",
+  "background_color": "#f5f6f1",
   "theme_color": "#0a222c",
-  "categories": ["productivity", "business"],
   "icons": [
-    {
-      "src": "./favicon-64.png",
-      "sizes": "64x64",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "./icon-maskable-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    }
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
