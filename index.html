@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OAB Santana de Parnaíba</title>
+<meta name="description" content="Aplicativo da 247ª Subseção da OAB SP: agendamento de salas, eventos e contatos úteis para a advocacia local.">
+<meta name="theme-color" content="#0a222c">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./favicon-64.png" sizes="64x64" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OAB Santana">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,450;9..144,500;9..144,600&family=Public+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+<style>
+  /* Faixa de instalação — estilos próprios, para não depender do styles.css */
+  #faixa-instalar{
+    position:fixed; left:0; right:0; top:0; z-index:9999;
+    display:none; align-items:center; gap:.75rem;
+    padding:.7rem 1rem calc(.7rem + env(safe-area-inset-top,0px));
+    background:#0a222c; color:#fff;
+    font-family:"Public Sans",system-ui,-apple-system,sans-serif; font-size:.9rem; line-height:1.35;
+    box-shadow:0 2px 12px rgba(0,0,0,.28);
+  }
+  #faixa-instalar.visivel{display:flex}
+  #faixa-instalar img{height:26px; flex:0 0 auto}
+  #faixa-instalar p{margin:0; flex:1 1 auto}
+  #faixa-instalar button{
+    flex:0 0 auto; border:0; border-radius:.5rem; cursor:pointer;
+    font:inherit; font-weight:600; padding:.45rem .85rem;
+    background:#fff; color:#0a222c;
+  }
+  #faixa-instalar .fechar{
+    background:transparent; color:#fff; opacity:.7;
+    padding:.45rem .35rem; font-size:1.15rem; line-height:1;
+  }
+  @media (max-width:420px){
+    #faixa-instalar{font-size:.82rem; gap:.5rem; padding-left:.75rem; padding-right:.75rem}
+    #faixa-instalar img{height:22px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ====================== INSTALAR NO CELULAR ====================== -->
+<div id="faixa-instalar" role="region" aria-label="Instalar aplicativo">
+  <img src="./icon-192.png" alt="">
+  <p id="faixa-texto">Instale o app da Subseção na tela inicial do seu celular.</p>
+  <button type="button" id="btn-instalar">Instalar</button>
+  <button type="button" class="fechar" id="btn-fechar-instalar" aria-label="Agora não">&times;</button>
+</div>
+
+<!-- ====================== IDENTIFICAÇÃO ====================== -->
+<section id="tela-cadastro" class="container" hidden>
+  <div style="padding:2.5rem 0 1.5rem">
+    <img src="./logo-horizontal.png" alt="OAB SP — Subseção Santana de Parnaíba" style="height:44px">
+  </div>
+  <h1>Bem-vindo à agenda da Subseção</h1>
+  <p class="lead">Informe seus dados uma única vez. Eles ficam guardados neste aparelho e preenchem suas próximas reservas automaticamente.</p>
+
+  <form id="form-cadastro">
+    <div class="linha">
+      <div class="campo c8">
+        <label for="cad-nome">Nome completo</label>
+        <input class="controle" id="cad-nome" required autocomplete="name">
+      </div>
+      <div class="campo c4">
+        <label for="cad-oab">Número da OAB</label>
+        <input class="controle" id="cad-oab" required placeholder="123456-SP" maxlength="10">
+      </div>
+    </div>
+    <div class="linha">
+      <div class="campo c4">
+        <label for="cad-telefone">Telefone</label>
+        <input class="controle" id="cad-telefone" required inputmode="tel" placeholder="(11) 90000-0000">
+      </div>
+      <div class="campo c8">
+        <label for="cad-email">E-mail</label>
+        <input class="controle" id="cad-email" type="email" autocomplete="email">
+        <span class="dica">Opcional. Serve para a Subseção entrar em contato sobre a reserva.</span>
+      </div>
+    </div>
+    <div class="acoes">
+      <button type="submit" class="btn btn-principal">Entrar na agenda</button>
+    </div>
+  </form>
+</section>
+
+<!-- ====================== APLICATIVO ====================== -->
+<div id="tela-app" hidden>
+
+  <header class="topo">
+    <div class="container">
+      <img src="./logo-horizontal.png" alt="OAB SP — Subseção Santana de Parnaíba">
+      <div class="quem">
+        <strong id="quem-nome"></strong>
+        <span id="quem-oab"></span><br>
+        <button class="link-troca" id="trocar-advogado" type="button">Trocar advogado</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- ---------- AGENDA ---------- -->
+    <section class="painel" id="painel-agenda">
+      <h1>Reservar sala</h1>
+      <p class="lead">Escolha o dia, a duração e toque no horário livre. Cada advogado tem até 2 horas por dia, somando todas as salas.</p>
+
+      <div id="aviso" aria-live="polite"></div>
+
+      <div class="datas" id="datas" role="group" aria-label="Escolha o dia"></div>
+
+      <div class="duracao" role="group" aria-label="Duração da reserva">
+        <button type="button" data-min="60" aria-pressed="true">1 hora</button>
+        <button type="button" data-min="120" aria-pressed="false">2 horas</button>
+      </div>
+
+      <p class="dica" id="saldo" style="margin:-0.7rem 0 1.4rem"></p>
+
+      <div id="grade"></div>
+    </section>
+
+    <!-- ---------- MINHAS RESERVAS ---------- -->
+    <section class="painel" id="painel-minhas" hidden>
+      <h1>Minhas reservas</h1>
+      <p class="lead">Suas reservas a partir de hoje. Cancele assim que souber que não vai usar a sala — o colega aproveita o horário.</p>
+      <div class="lista" id="minhas-lista"></div>
+    </section>
+
+    <!-- ---------- EVENTOS ---------- -->
+    <section class="painel" id="painel-eventos" hidden>
+      <h1>Eventos da Subseção</h1>
+      <p class="lead">Cursos, reuniões de comissão e atividades abertas à advocacia local.</p>
+      <div id="eventos-proximos"></div>
+      <h2>Já realizados</h2>
+      <div id="eventos-passados"></div>
+    </section>
+
+    <!-- ---------- CONTATOS ---------- -->
+    <section class="painel" id="painel-contatos" hidden>
+      <h1>Contatos úteis</h1>
+      <p class="lead">Ramais do Fórum da Comarca e endereços dos órgãos da região. Toque no número para ligar direto.</p>
+
+      <div class="campo">
+        <label for="busca">Buscar por vara, setor ou órgão</label>
+        <input class="controle" id="busca" type="search" placeholder="família, distribuição, delegacia…">
+      </div>
+
+      <div class="aviso aviso-info">
+        Fórum de Santana de Parnaíba — R. Prof. Eugênio Teani, 215, Jardim Prof. Benoa.<br>
+        Público em geral das 13h às 17h. Advogado com carteira da OAB, das 9h às 17h. Juizado Especial Cível, das 13h às 16h.
+      </div>
+
+      <div id="lista-contatos" class="diretorio"></div>
+      <p class="vazio" id="busca-vazia" hidden>Nenhum contato com esse termo. Tente outra palavra.</p>
+    </section>
+
+    <footer>
+      OAB SP — 247ª Subseção Santana de Parnaíba. R. Alberto Frediani, 770. (11) 4154-4228, atendimento das 9h às 18h.
+    </footer>
+  </main>
+</div>
+
+<!-- ====================== NAVEGAÇÃO ====================== -->
+<nav class="barra" role="tablist" aria-label="Seções do aplicativo" hidden>
+  <button data-aba="agenda" role="tab" aria-selected="true">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>
+    Agenda
+  </button>
+  <button data-aba="minhas" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7 10 17l-5-5"/></svg>
+    Minhas
+  </button>
+  <button data-aba="eventos" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 4 7v6c0 4.5 3.4 7.7 8 8.9 4.6-1.2 8-4.4 8-8.9V7l-8-4z"/></svg>
+    Eventos
+  </button>
+  <button data-aba="contatos" role="tab" aria-selected="false">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h4l2 5-2.5 1.5a12 12 0 0 0 5 5L15 13l5 2v4a1 1 0 0 1-1 1A16 16 0 0 1 4 5a1 1 0 0 1 1-1z"/></svg>
+    Contatos
+  </button>
+</nav>
+
+<!-- ====================== CONFIRMAÇÃO ====================== -->
+<dialog id="modal" aria-labelledby="modal-titulo">
+  <div class="modal-corpo">
+    <h3 id="modal-titulo">Confirmar reserva</h3>
+    <div id="modal-texto"></div>
+  </div>
+  <div class="modal-acoes">
+    <button class="btn" id="modal-cancelar" type="button">Voltar</button>
+    <button class="btn btn-principal" id="modal-confirmar" type="button">Reservar</button>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script src="./config.js"></script>
+<script src="./conteudo.js"></script>
+<script src="./dados.js"></script>
+<script src="./app.js"></script>
+
+<!-- ====================== INSTALAÇÃO (PWA) ====================== -->
+<script>
+(function () {
+  // 1. Registra o service worker — sem ele o celular não oferece a instalação.
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js', { scope: './' })
+        .catch(function (e) { console.warn('Service worker não registrado:', e); });
+    });
+  }
+
+  var faixa    = document.getElementById('faixa-instalar');
+  var texto    = document.getElementById('faixa-texto');
+  var btnInst  = document.getElementById('btn-instalar');
+  var btnFecha = document.getElementById('btn-fechar-instalar');
+  var evento   = null;
+
+  var jaInstalado =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    window.navigator.standalone === true;
+
+  var dispensou = false;
+  try { dispensou = localStorage.getItem('oab-instalar-dispensado') === '1'; } catch (e) {}
+
+  function mostrar() { faixa.classList.add('visivel'); }
+  function esconder() { faixa.classList.remove('visivel'); }
+
+  btnFecha.addEventListener('click', function () {
+    esconder();
+    try { localStorage.setItem('oab-instalar-dispensado', '1'); } catch (e) {}
+  });
+
+  // 2. Android / Chrome / Edge: instalação com um toque.
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    evento = e;
+    if (!jaInstalado && !dispensou) mostrar();
+  });
+
+  btnInst.addEventListener('click', function () {
+    if (!evento) return;
+    evento.prompt();
+    evento.userChoice.then(function () { evento = null; esconder(); });
+  });
+
+  window.addEventListener('appinstalled', function () {
+    esconder();
+    try { localStorage.setItem('oab-instalar-dispensado', '1'); } catch (e) {}
+  });
+
+  // 3. iPhone e iPad: o Safari não tem botão, então explicamos o caminho.
+  var ehIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+              (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  if (ehIOS && !jaInstalado && !dispensou) {
+    texto.textContent = 'Para instalar: toque em Compartilhar e depois em "Adicionar à Tela de Início".';
+    btnInst.hidden = true;
+    mostrar();
+  }
+})();
+</script>
+</body>
+</html>

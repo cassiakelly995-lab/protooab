@@ -1,0 +1,41 @@
+{
+  "name": "OAB Santana de Parnaíba",
+  "short_name": "OAB Santana",
+  "description": "Aplicativo da 247ª Subseção da OAB SP: agendamento de salas, eventos e contatos úteis para a advocacia local.",
+  "lang": "pt-BR",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "id": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a222c",
+  "theme_color": "#0a222c",
+  "categories": ["productivity", "business"],
+  "icons": [
+    {
+      "src": "./favicon-64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
